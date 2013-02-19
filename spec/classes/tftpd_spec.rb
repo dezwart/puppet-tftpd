@@ -1,13 +1,36 @@
 require 'spec_helper'
 
 describe 'tftpd' do
-  packages = [ 'tftpd' ]
+  tftpd = 'tftpd'
+  inetd = 'openbsd-inetd'
+  xinetd = 'xinetd'
+
   tftp_dir = '/srv/tftp'
-  dirs = [ tftp_dir ]
+
+  packages = [
+    tftpd,
+    inetd
+  ]
+
+  dirs = [
+    tftp_dir
+  ]
+
+  purge_packages = [
+    xinetd
+  ]
 
   context 'default' do
     it {
       packages.map { |x| should contain_package(x) }
+    }
+
+    it {
+      purge_packages.map {
+        |x| should contain_package(x).with({
+          'ensure' => 'purged',
+        })
+      }
     }
 
     it {

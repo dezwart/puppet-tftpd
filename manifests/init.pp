@@ -5,17 +5,29 @@ class tftpd( $tftpd_user = 'nobody',
   $tftp_dir = '/srv/tftp' ) {
 
   $package = 'tftpd'
+  $inetd = 'openbsd-inetd'
+  $packages = [ $package,
+    $inetd ]
 
-  package { $package:
-    ensure  => installed,
+  $purge_packages = [ 'xinetd' ]
+
+  package { $purge_packages:
+    ensure  => purged,
   }
+
+  package { $packages:
+    ensure  => installed,
+    require => Package[$purge_packages]
+  }
+
+  Package[$inetd] -> Package[$package]
 
   file { $tftp_dir:
     ensure  => directory,
     owner   => $tftpd_user,
     group   => $tftpd_group,
     mode    => '0550',
-    require => Package[$package],
+    require => Package[$packages],
   }
 }
 
